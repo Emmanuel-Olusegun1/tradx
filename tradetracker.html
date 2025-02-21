@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background-color: #28a745;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 3em;
+      font-weight: 700;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+      color: white;
+    }
+
+    .hero video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .hero-content {
+      z-index: 1;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 700px;
+    }
+
+    .hero h1 {
+      font-size: 3.5em;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero p {
+      font-size: 1.3em;
+      margin-bottom: 20px;
+    }
+
+    .cta-button {
+      padding: 15px 30px;
+      background-color: #28a745;
+      color: white;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .cta-button:hover {
+      background-color: #218838;
+    }
+
+    .search-bar-container {
+      display: flex;
+      justify-content: center;
+      margin: 40px 0 20px;
+    }
+
+    .search-bar {
+      width: 90%;
+      max-width: 500px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+      font-size: 1.2em;
+      background-color: #fff;
+      transition: border-color 0.3s;
+    }
+
+    .search-bar:focus {
+      border-color: #28a745;
+    }
+
+    /* Crypto List */
+    .crypto-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .crypto-item {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .crypto-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .crypto-item img {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 15px;
+    }
+
+    .crypto-item h3 {
+      font-size: 1.4em;
+      margin-bottom: 10px;
+      color: #28a745;
+    }
+
+    .crypto-item p {
+      margin: 8px 0;
+    }
+
+    .crypto-item p span {
+      font-weight: 600;
+    }
+
+    .crypto-item .positive {
+      color: #28a745;
+    }
+
+    .crypto-item .negative {
+      color: #dc3545;
+    }
+
+    .crypto-item .extra-info {
+      display: none;
+      margin-top: 15px;
+    }
+
+    .crypto-item:hover .extra-info {
+      display: block;
+    }
+
+    footer {
+      background-color: #28a745;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    footer p {
+      font-size: 1.2em;
+    }
+
+    /* Back to Top Button */
+    #back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: #28a745;
+      color: white;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.8em;
+      cursor: pointer;
+      display: none;
+      z-index: 1000;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    #back-to-top:hover {
+      background-color: #218838;
+      transform: scale(1.1);
+    }
+
+    /* Loader Styles */
+    .loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 2em;
+      font-weight: bold;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .loader.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    Loading, please wait...
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <video autoplay muted loop>
+      <source src="bg vid.mp4" type="video/mp4">
+      Your browser does not support HTML5 video.
+    </video>
+    <div class="hero-content">
+      <h1>Welcome to Trade Tracker</h1>
+      <p>Track Cryptocurrencies in Real Time, stay updated with the latest cryptocurrency prices</p>
+      <a href="#crypto-list" class="cta-button">Get Started</a>
+    </div>
+  </section>
+
+  <!-- Search Bar -->
+  <div class="search-bar-container">
+    <input type="text" id="search" class="search-bar" placeholder="Search for a cryptocurrency...">
+  </div>
+
+  <!-- Crypto List Section -->
+  <main>
+    <section id="crypto-list" class="crypto-list">
+      <!-- Cryptocurrency cards will be displayed here -->
+    </section>
+    <div style="text-align: center;">
+      <button id="load-more-btn" class="cta-button">Load More</button>
+    </div>
+  </main> <br>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Trade Tracker. All rights reserved.</p>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <button id="back-to-top">&#8679;</button>
+
+  <script>
+    const API_URL = 'https://api.coingecko.com/api/v3/coins/markets';
+    let currentPage = 1;
+    const coinsPerPage = 100; // Maximum number of coins per page
+    const totalPages = 6; // We want to fetch data for 600 coins (100 coins * 6 pages)
+    const cryptoListContainer = document.getElementById('crypto-list');
+    const searchInput = document.getElementById('search');
+    const loadMoreButton = document.getElementById('load-more-btn');
+    const backToTopButton = document.getElementById('back-to-top');
+    const loader = document.getElementById('loader');
+    let allCryptos = []; // Array to store all fetched cryptocurrency data
+  
+    // Fetch cryptocurrency data from multiple pages
+    async function fetchCryptoData(page = 1) {
+      try {
+        const params = new URLSearchParams({
+          vs_currency: 'usd',
+          order: 'market_cap_desc',
+          per_page: coinsPerPage,
+          page: page,
+          sparkline: 'false',
+        });
+  
+        const response = await fetch(`${API_URL}?${params}`);
+        const data = await response.json();
+        allCryptos = [...allCryptos, ...data]; // Store the fetched data
+        displayCryptoData(allCryptos); // Display the stored data
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  
+    // Display the fetched cryptocurrency data
+    function displayCryptoData(cryptos) {
+      cryptoListContainer.innerHTML = ''; // Clear the container before displaying new data
+      cryptos.forEach((crypto) => {
+        const cryptoElement = document.createElement('div');
+        cryptoElement.classList.add('crypto-item');
+  
+        const priceChangeClass = crypto.price_change_percentage_24h >= 0 ? 'positive' : 'negative';
+  
+        cryptoElement.innerHTML = `
+          <img src="${crypto.image}" alt="${crypto.name}">
+          <h3>${crypto.name}</h3>
+          <p><span>Price:</span> $${crypto.current_price.toFixed(2)}</p>
+          <p><span>24h Change:</span> <span class="${priceChangeClass}">${crypto.price_change_percentage_24h.toFixed(2)}%</span></p>
+          <p><span>Market Cap:</span> $${crypto.market_cap.toLocaleString()}</p>
+          <div class="extra-info">
+            <p><span>24h High:</span> $${crypto.high_24h.toFixed(2)}</p>
+            <p><span>24h Low:</span> $${crypto.low_24h.toFixed(2)}</p>
+            <p><span>Circulating Supply:</span> ${crypto.circulating_supply.toLocaleString()}</p>
+          </div>
+        `;
+  
+        cryptoListContainer.appendChild(cryptoElement);
+      });
+    }
+  
+    // Search functionality
+    searchInput.addEventListener('input', () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      if (searchTerm === '') {
+        // If search box is empty, display all the fetched data
+        displayCryptoData(allCryptos);
+      } else {
+        // Filter data based on search term
+        const filteredCryptos = allCryptos.filter((crypto) =>
+          crypto.name.toLowerCase().includes(searchTerm) || crypto.symbol.toLowerCase().includes(searchTerm)
+        );
+        displayCryptoData(filteredCryptos);
+      }
+    });
+  
+    // Load more functionality
+    loadMoreButton.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        fetchCryptoData(currentPage);
+      }
+    });
+  
+    // Back to Top Button functionality
+    window.onscroll = function () {
+      if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        backToTopButton.style.display = 'block';
+      } else {
+        backToTopButton.style.display = 'none';
+      }
+    };
+  
+    backToTopButton.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  
+    // Simulate a 5-second loader delay
+    setTimeout(() => {
+      loader.classList.add('fade-out');
+    }, 2000);
+  
+    // Fetch data for the first page
+    fetchCryptoData(currentPage);
+  </script>
+  
+  
+
+</body>
+</html>
